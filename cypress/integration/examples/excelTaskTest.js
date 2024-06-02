@@ -1,6 +1,3 @@
-import neatCSV from 'neat-csv'
-
-
 describe('My Intercept Mock Suite', function()
 {
     it('My first api test', async () =>

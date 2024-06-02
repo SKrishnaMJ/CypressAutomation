@@ -8,6 +8,8 @@ const {
 const sqlServer = require('cypress-sql-server');
 const excelToJson = require('convert-excel-to-json')
 const fs = require('fs')
+const ExcelJS = require('exceljs');
+
 
 async function setupNodeEvents(on, config) {
 
@@ -44,8 +46,48 @@ async function setupNodeEvents(on, config) {
     
   })
 
+  //Creating a task to write into excel files
+  on("task", {
+    async excelManipulate({searchWord, replaceWord, change, filePath}) {
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.readFile(filePath);
+      const worksheet = workbook.getWorksheet("Sheet1");
+      result = await readExcelManipulate(worksheet, searchWord);
+      const cell = worksheet.getCell(
+        result.row,
+        result.column + change.colChange
+      );
+      cell.value = replaceWord;
+      return workbook.xlsx.writeFile(filePath).then(function()
+      {
+        return true;
+      })
+      .catch((error) =>
+      {
+        return false;
+      })
+    },
+  });
+
   // Make sure to return the config object as it might have been modified by the plugin.
   return config;
+}
+
+async function readExcelManipulate(worksheet, searchWord)
+{
+    let result = {row:-1, column:-1};
+    worksheet.eachRow((row, rowNumber) =>
+{
+    row.eachCell((cell, colNumber) =>
+    {
+        if (cell.value === searchWord)
+        {
+            result.row = rowNumber;
+            result.column = colNumber;
+        }
+    })
+})
+return result;
 }
 
 module.exports = defineConfig({
