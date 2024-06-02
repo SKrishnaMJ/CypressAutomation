@@ -69,6 +69,12 @@ describe('My Intercept Mock Suite', function()
             expect(result.data[1].B).to.equal(actualprodName)
         })
 
+        //Read file and convert it into text and validate if this text includes the product
+        cy.readFile(Cypress.config("fileServerFolder") + "/cypress/downloads/order-invoice_skrishna007.xlsx").then(function(text)
+        {
+            expect(text).to.include(actualprodName)
+        })
+
     
 
 
